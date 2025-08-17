@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Registration Form</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #eefaf1;
+      margin: 20px;
+    }
+    h2 {
+      text-align: center;
+      color: #1d5c2e;
+    }
+    form {
+      max-width: 500px;
+      margin: auto;
+      padding: 20px;
+      background: #fff;
+      border: 2px solid #27ae60;
+      border-radius: 10px;
+      box-shadow: 0px 4px 8px rgba(0,0,0,0.1);
+    }
+    label {
+      display: block;
+      margin: 10px 0 5px;
+      font-weight: bold;
+    }
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 5px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+    button {
+      padding: 12px 20px;
+      background: #27ae60;
+      color: white;
+      font-weight: bold;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 10px;
+    }
+    button:hover {
+      background: #1e8449;
+    }
+    .error {
+      color: red;
+      font-size: 13px;
+      margin-bottom: 10px;
+    }
+    .success {
+      color: green;
+      font-weight: bold;
+      text-align: center;
+    }
+    #userTable {
+      margin-top: 30px;
+      width: 100%;
+      border-collapse: collapse;
+    }
+    #userTable th, #userTable td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: center;
+    }
+    #userTable th {
+      background: #27ae60;
+      color: white;
+    }
+    .delete-btn {
+      background: #e74c3c;
+      border: none;
+      color: white;
+      padding: 5px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .delete-btn:hover {
+      background: #c0392b;
+    }
+    .toggle-btn {
+      margin-top: -32px;
+      float: right;
+      margin-right: 10px;
+      cursor: pointer;
+      font-size: 12px;
+      color: #27ae60;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Student Registration</h2>
+  <form id="regForm">
+    <label for="name">Full Name</label>
+    <input type="text" id="name" required>
+    <p class="error" id="nameError"></p>
+
+    <label for="dob">Date of Birth</label>
+    <input type="date" id="dob" required>
+    <p id="agePreview"></p>
+    <p class="error" id="ageError"></p>
+
+    <label for="gender">Gender</label>
+    <select id="gender" required>
+      <option value="">Select</option>
+      <option value="Male">Male</option>
+      <option value="Female">Female</option>
+      <option value="Other">Other</option>
+    </select>
+
+    <label for="phone">Phone Number</label>
+    <input type="tel" id="phone" pattern="[0-9]{10}" placeholder="10-digit number" required>
+    <p class="error" id="phoneError"></p>
+
+    <label for="email">Email</label>
+    <input type="email" id="email" required>
+    <p class="error" id="emailError"></p>
+
+    <label for="password">Password</label>
+    <input type="password" id="password" required>
+    <span class="toggle-btn" onclick="togglePassword()">Show</span>
+
+    <label for="confirmPassword">Confirm Password</label>
+    <input type="password" id="confirmPassword" required>
+    <p class="error" id="passwordError"></p>
+
+    <button type="submit">Register</button>
+    <p id="msg" class="success"></p>
+  </form>
+
+  <h2>Registered Users</h2>
+  <table id="userTable">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Age</th>
+        <th>Gender</th>
+        <th>Phone</th>
+        <th>Email</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+  <button onclick="clearAll()">Clear All Users</button>
+
+  <script>
+    const form = document.getElementById("regForm");
+    const msg = document.getElementById("msg");
+    const agePreview = document.getElementById("agePreview");
+    const tbody = document.querySelector("#userTable tbody");
+
+    function calculateAge(dob) {
+      const today = new Date();
+      let age = today.getFullYear() - dob.getFullYear();
+      const m = today.getMonth() - dob.getMonth();
+      if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
+        age--;
+      }
+      return age;
+    }
+
+    document.getElementById("dob").addEventListener("change", () => {
+      const dob = new Date(document.getElementById("dob").value);
+      const age = calculateAge(dob);
+      agePreview.textContent = "Your Age: " + age;
+    });
+
+    form.addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      const name = document.getElementById("name").value.trim();
+      const dob = new Date(document.getElementById("dob").value);
+      const gender = document.getElementById("gender").value;
+      const phone = document.getElementById("phone").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+      const confirmPassword = document.getElementById("confirmPassword").value;
+
+      document.getElementById("nameError").textContent = "";
+      document.getElementById("ageError").textContent = "";
+      document.getElementById("phoneError").textContent = "";
+      document.getElementById("emailError").textContent = "";
+      document.getElementById("passwordError").textContent = "";
+
+      let valid = true;
+      if (name === "") {
+        document.getElementById("nameError").textContent = "Name is required.";
+        valid = false;
+      }
+
+      const age = calculateAge(dob);
+      if (age < 18 || age > 55) {
+        document.getElementById("ageError").textContent = "Age must be between 18 and 55.";
+        valid = false;
+      }
+
+      if (!/^[0-9]{10}$/.test(phone)) {
+        document.getElementById("phoneError").textContent = "Enter a valid 10-digit phone number.";
+        valid = false;
+      }
+
+      if (!/\S+@\S+\.\S+/.test(email)) {
+        document.getElementById("emailError").textContent = "Enter a valid email address.";
+        valid = false;
+      }
+
+      if (password !== confirmPassword) {
+        document.getElementById("passwordError").textContent = "Passwords do not match.";
+        valid = false;
+      }
+
+      if (!valid) return;
+
+      const users = JSON.parse(localStorage.getItem("users")) || [];
+      users.push({ name, age, gender, phone, email });
+      localStorage.setItem("users", JSON.stringify(users));
+
+      msg.textContent = "Registration successful!";
+      form.reset();
+      agePreview.textContent = "";
+
+      displayUsers();
+    });
+
+    function displayUsers() {
+      const users = JSON.parse(localStorage.getItem("users")) || [];
+      tbody.innerHTML = "";
+      users.forEach((user, index) => {
+        const row = `<tr>
+          <td>${user.name}</td>
+          <td>${user.age}</td>
+          <td>${user.gender}</td>
+          <td>${user.phone}</td>
+          <td>${user.email}</td>
+          <td><button class="delete-btn" onclick="deleteUser(${index})">Delete</button></td>
+        </tr>`;
+        tbody.innerHTML += row;
+      });
+    }
+
+    function deleteUser(index) {
+      const users = JSON.parse(localStorage.getItem("users")) || [];
+      users.splice(index, 1);
+      localStorage.setItem("users", JSON.stringify(users));
+      displayUsers();
+    }
+
+    function clearAll() {
+      localStorage.removeItem("users");
+      displayUsers();
+    }
+
+    function togglePassword() {
+      const pass = document.getElementById("password");
+      const toggle = document.querySelector(".toggle-btn");
+      if (pass.type === "password") {
+        pass.type = "text";
+        toggle.textContent = "Hide";
+      } else {
+        pass.type = "password";
+        toggle.textContent = "Show";
+      }
+    }
+
+    window.onload = displayUsers;
+  </script>
+
+</body>
+</html>
